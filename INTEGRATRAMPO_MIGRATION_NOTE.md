@@ -1,1 +1,0 @@
-Este repositório foi reaproveitado para a IntegraTrampo em 06/09/2026. O conteúdo anterior de almoxarifado foi preservado na branch de backup antes da migração.
