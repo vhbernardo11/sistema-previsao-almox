@@ -1,0 +1,1 @@
+Backup lógico: o antigo conteúdo do projeto de almoxarifado está no commit 951430d145cd9f8f0d04104a2f503e46f47c52e2 e pode ser restaurado a qualquer momento.
