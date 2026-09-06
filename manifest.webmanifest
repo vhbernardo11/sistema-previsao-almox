@@ -1,10 +1,10 @@
 {
   "name": "IntegraTrampo",
   "short_name": "IntegraTrampo",
-  "description": "Conectando profissionais locais a quem precisa contratar.",
+  "description": "Quem precisa de trabalho encontra quem precisa de gente.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#07131f",
-  "theme_color": "#07131f"
+  "background_color": "#FFFFFF",
+  "theme_color": "#0D1B2A"
 }
