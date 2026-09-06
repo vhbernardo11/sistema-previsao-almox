@@ -1,0 +1,1 @@
+O snapshot original de almoxarifado está identificado pelo commit 951430d145cd9f8f0d04104a2f503e46f47c52e2.
