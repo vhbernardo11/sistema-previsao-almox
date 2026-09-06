@@ -1,6 +1,6 @@
 # IntegraTrampo — identidade visual oficial
 
-Este arquivo é a referência obrigatória para qualquer nova tela, protótipo ou hospedagem da IntegraTrampo.
+Este arquivo é a referência obrigatória para qualquer nova tela e hospedagem da IntegraTrampo.
 
 ## Marca
 - Símbolo: duas pessoas conectadas em azul e laranja, integradas a um marcador de localização verde.
@@ -22,7 +22,9 @@ Este arquivo é a referência obrigatória para qualquer nova tela, protótipo o
 ## Regras
 1. Não substituir o símbolo oficial por monograma “IT”, gradiente genérico ou outra marca improvisada.
 2. Não trocar a paleta oficial por tons neon.
-3. Dados fictícios de profissionais, empresas, avaliações e oportunidades devem ser identificados como demonstração.
-4. A identidade acima deve ser aplicada tanto no site principal quanto nos protótipos e painéis.
+3. O ambiente público deve exibir apenas profissionais, contratantes e oportunidades reais que tenham passado pelas regras de publicação.
+4. Profissional só pode ser publicado com foto aprovada; contratante público precisa de identificação visual aprovada.
+5. Dados de teste devem permanecer fora do ambiente público.
+6. A identidade acima deve ser aplicada em todo o site, painéis e comunicações.
 
 Fonte: painel de identidade visual aprovado da IntegraTrampo.
