@@ -1,74 +1,43 @@
-# Sistema de Previsão de Backup - ALMOX 2025
+# IntegraTrampo
 
-## Visão Geral
-Sistema integrado de previsão de backup para controle de estoque e almoxarifado.
+Marketplace local para conectar profissionais, freelancers, empresas, eventos e pessoas que precisam contratar serviços.
 
-**Versão:** 6.0 Integrada  
-**Status:** Ativo e Funcional
+## Status
 
-## Funcionalidades Principais
+Protótipo online em evolução.
 
-- ✅ **Painel de Departamentos** - Viso geral de todos os setores
-- ✅ **Cadastro de Previsões** - Lançamento de novos itens
-- ✅ **Relatórios Consolidados** - Análise por departamento
-- ✅ **Backup de Dados** - Salvar e restaurar informações
-- ✅ **Exportação de CSV** - Extração de dados para planilhas
-- ✅ **Geração de PDF** - Relatórios para impressão
+A versão atual inclui:
+- home responsiva;
+- profissionais fictícios com imagens ilustrativas;
+- empresas fictícias;
+- oportunidades demonstrativas;
+- filtros;
+- favoritos;
+- candidatura simulada;
+- painel do profissional;
+- painel do contratante;
+- seleção de candidato;
+- confirmação bilateral do serviço;
+- chat demonstrativo;
+- avaliação pós-serviço;
+- pré-cadastro com confirmação manual pelo WhatsApp;
+- estado local com `localStorage`;
+- PWA e cache offline básico.
 
-## Acesso ao Sistema
+## Importante
 
-O sistema está disponível via GitHub Pages:  
-**URL:** `https://vhbernardo11.github.io/sistema-previsao-almox/`
+Os profissionais, empresas, avaliações e oportunidades da área de demonstração são fictícios. Eles não representam cadastros reais e não entram nas métricas operacionais da IntegraTrampo.
 
-## Departamentos Inclusos
+## Dados reais
 
-- ADMINISTRAÇÃO
-- AGRICULTURA  
-- ASSISTÊNCIA SOCIAL
-- BOMBEIROS
-- COMPRAS
-- CRAS/CREAS
-- CRIANÇA FELIZ
-- CULTURA
-- ESPORTE
-- FINANÇA
-- LIMPEZA PÚBLICA
-- SAÚDE
-- TRANSPORTE
-- E muitos outros...
+Esta versão do GitHub é propositalmente desacoplada do banco real. Não contém `service_role`, senhas nem chaves privadas.
 
-## Como Usar
+A futura integração com Supabase deve usar apenas chave publicável no navegador, RLS e operações autorizadas.
 
-1. **Acessar o Sistema**: Abra o link acima no navegador
-2. **Novo Lançamento**: Clique em "Nova Previsão"
-3. **Selecione o Departamento**: Escolha o setor responsável
-4. **Busque o Material**: Digite o código ou nome do item
-5. **Defina a Quantidade**: Informe o total anual
-6. **Confirmar**: O sistema distribui automaticamente por meses
-7. **Relatórios**: Visualize, exporte CSV ou gere PDF
+## Migração
 
-## Banco de Dados
+Este repositório foi reaproveitado de um projeto antigo que não era mais utilizado. O snapshot original foi preservado na branch `backup-almoxarifado-original` antes da migração.
 
-O sistema contém mais de 1.000 produtos diferentes:
-- Papéis e cartolinas
-- Cartuchos e toners
-- Materiais de construção
-- Eletrônicos
-- Alimentos
-- E muito mais...
+## Projeto
 
-## Backup e Restauração
-
-Todos os dados são salvos localmente no navegador (localStorage).
-
-- **Fazer Backup**: Vá em Configurações → Baixar Backup .json
-- **Restaurar**: Vá em Configurações → Restaurar Backup .json
-
-## Suporte
-
-Para dúvidas ou sugestões, abra uma issue neste repositório.
-
----
-
-**Desenvolvido por:** ALMOX 2025  
-**Licença:** MIT
+IntegraTrampo — Quem precisa de trabalho encontra quem precisa de gente.
