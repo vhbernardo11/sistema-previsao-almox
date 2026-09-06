@@ -1,0 +1,10 @@
+{
+  "name": "IntegraTrampo",
+  "short_name": "IntegraTrampo",
+  "description": "Conectando profissionais locais a quem precisa contratar.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07131f",
+  "theme_color": "#07131f"
+}
