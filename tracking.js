@@ -79,16 +79,28 @@
     document.body.appendChild(admin);
   }
 
+  function loadUserLayer(){
+    if(document.querySelector('script[data-integratrampo-user]')){loadAdminLayer();return}
+    const user=document.createElement('script');
+    user.src='./user.js?v=1';
+    user.defer=true;
+    user.dataset.integratrampoUser='1';
+    user.onload=loadAdminLayer;
+    user.onerror=loadAdminLayer;
+    document.body.appendChild(user);
+  }
+
   window.addEventListener('load',()=>{
     if(document.querySelector('script[data-integratrampo-auth]')){
-      loadAdminLayer();
+      loadUserLayer();
       return;
     }
     const script=document.createElement('script');
     script.src='./auth.js?v=1';
     script.defer=true;
     script.dataset.integratrampoAuth='1';
-    script.onload=loadAdminLayer;
+    script.onload=loadUserLayer;
+    script.onerror=loadAdminLayer;
     document.body.appendChild(script);
   },{once:true});
 })();
