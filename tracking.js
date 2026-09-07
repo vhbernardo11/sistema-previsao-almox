@@ -42,7 +42,6 @@
   let stored=null;
   try{stored=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch{}
 
-  // Primeiro toque: só substitui quando há uma nova UTM explícita.
   const hasExplicitCampaign=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src','ref'].some(k=>params.has(k));
   if(!stored || hasExplicitCampaign){
     stored=current;
@@ -74,14 +73,12 @@
   function loadAdminLayer(){
     if(document.querySelector('script[data-integratrampo-admin]'))return;
     const admin=document.createElement('script');
-    admin.src='./admin.js?v=1';
+    admin.src='./admin.js?v=2';
     admin.defer=true;
     admin.dataset.integratrampoAdmin='1';
     document.body.appendChild(admin);
   }
 
-  // A camada autenticada é carregada somente depois que a interface pública,
-  // inclusive os exemplos de demonstração, terminou de inicializar.
   window.addEventListener('load',()=>{
     if(document.querySelector('script[data-integratrampo-auth]')){
       loadAdminLayer();
