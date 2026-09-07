@@ -266,9 +266,13 @@
     if($('hireBtn'))$('hireBtn').onclick=()=>hiringModal();
     if($('hireBtn2'))$('hireBtn2').onclick=()=>hiringModal();
     if($('loginBtn'))updateLoginButton();
-    sb.auth.onAuthStateChange(async(event,session)=>{
-      currentSession=session;currentUser=session?.user||null;if(currentUser)await claimRecords();else claimedUserId=null;updateLoginButton();
-      if(event==='SIGNED_IN'){toast('Acesso liberado');go('painel')}else if(event==='SIGNED_OUT'&&$('screen-painel')?.classList.contains('is-active'))renderPanel();
+    sb.auth.onAuthStateChange((event,session)=>{
+      currentSession=session;currentUser=session?.user||null;if(!currentUser)claimedUserId=null;updateLoginButton();
+      setTimeout(async()=>{
+        if(currentUser)await claimRecords();
+        if(event==='SIGNED_IN'){toast('Acesso liberado');go('painel')}
+        else if(event==='SIGNED_OUT'&&$('screen-painel')?.classList.contains('is-active'))renderPanel();
+      },0);
     });
     if(window.location.hash&&currentUser){try{history.replaceState(null,'',window.location.pathname+window.location.search)}catch{}}
     if($('screen-painel')?.classList.contains('is-active'))renderPanel();
