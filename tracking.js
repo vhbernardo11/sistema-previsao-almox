@@ -70,4 +70,15 @@
       return originalApiPost(table,payload);
     };
   }
+
+  // A camada autenticada é carregada somente depois que a interface pública,
+  // inclusive os exemplos de demonstração, terminou de inicializar.
+  window.addEventListener('load',()=>{
+    if(document.querySelector('script[data-integratrampo-auth]'))return;
+    const script=document.createElement('script');
+    script.src='./auth.js?v=1';
+    script.defer=true;
+    script.dataset.integratrampoAuth='1';
+    document.body.appendChild(script);
+  },{once:true});
 })();
