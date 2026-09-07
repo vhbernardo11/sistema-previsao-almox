@@ -71,14 +71,27 @@
     };
   }
 
+  function loadAdminLayer(){
+    if(document.querySelector('script[data-integratrampo-admin]'))return;
+    const admin=document.createElement('script');
+    admin.src='./admin.js?v=1';
+    admin.defer=true;
+    admin.dataset.integratrampoAdmin='1';
+    document.body.appendChild(admin);
+  }
+
   // A camada autenticada é carregada somente depois que a interface pública,
   // inclusive os exemplos de demonstração, terminou de inicializar.
   window.addEventListener('load',()=>{
-    if(document.querySelector('script[data-integratrampo-auth]'))return;
+    if(document.querySelector('script[data-integratrampo-auth]')){
+      loadAdminLayer();
+      return;
+    }
     const script=document.createElement('script');
     script.src='./auth.js?v=1';
     script.defer=true;
     script.dataset.integratrampoAuth='1';
+    script.onload=loadAdminLayer;
     document.body.appendChild(script);
   },{once:true});
 })();
