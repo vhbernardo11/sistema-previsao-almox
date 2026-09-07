@@ -75,4 +75,16 @@ populateFilters=function(){
   $('proCategory').innerHTML='<option value="">Todas as áreas</option>'+pc.map(x=>`<option>${x}</option>`).join('');
 };
 
+// Reassocia os filtros depois que as funções de demonstração substituem
+// as renderizações base. Assim os dados reais e os exemplos continuam
+// aparecendo juntos também após busca, ordenação e limpeza dos filtros.
+if($('jobQuery')) $('jobQuery').oninput=()=>renderJobs();
+if($('jobCategory')) $('jobCategory').onchange=()=>renderJobs();
+if($('jobOrder')) $('jobOrder').onchange=()=>renderJobs();
+if($('clearJobs')) $('clearJobs').onclick=()=>{$('jobQuery').value='';$('jobCategory').value='';$('jobOrder').value='match';renderJobs()};
+if($('proQuery')) $('proQuery').oninput=()=>renderPros();
+if($('proCategory')) $('proCategory').onchange=()=>renderPros();
+if($('proOrder')) $('proOrder').onchange=()=>renderPros();
+if($('clearPros')) $('clearPros').onclick=()=>{$('proQuery').value='';$('proCategory').value='';$('proOrder').value='match';renderPros()};
+
 renderAll();
