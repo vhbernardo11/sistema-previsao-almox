@@ -1,10 +1,13 @@
-// IntegraTrampo · compatibilidade do carregador
-// A experiência atual usa apenas login próprio por e-mail/telefone + senha.
+// IntegraTrampo · bootstrap de compatibilidade v8
+// Carrega primeiro o núcleo de interação (botões/navegação) e depois as demais camadas.
 (function(){
-  if(document.querySelector('script[data-integratrampo-tracking-v6]'))return;
-  const s=document.createElement('script');
-  s.src='./tracking-v6.js?v=1';
-  s.defer=true;
-  s.dataset.integratrampoTrackingV6='1';
-  document.body.appendChild(s);
+  function load(key,src,next){
+    if(document.querySelector(`script[data-${key}]`)){if(next)next();return}
+    const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(`data-${key}`,'1');
+    s.onload=()=>next&&next();s.onerror=()=>{console.error('[IntegraTrampo] Falha ao carregar',src);next&&next()};
+    document.body.appendChild(s);
+  }
+  load('integratrampo-ui-core-v8','./ui-core-v8.js?v=1',()=>{
+    load('integratrampo-tracking-v6','./tracking-v6.js?v=3');
+  });
 })();
