@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Avatar profissional de Rafael Francisco dos Santos Souza</title>
+  <desc id="desc">Retrato vetorial estilizado, com cabelo curto, barba, óculos e camisa preta, inspirado na foto fornecida para o cadastro.</desc>
+  <defs>
+    <clipPath id="avatarClip"><circle cx="256" cy="256" r="248"/></clipPath>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef4fa"/></linearGradient>
+    <linearGradient id="skin" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#efb28d"/><stop offset="1" stop-color="#c9825f"/></linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="252" fill="url(#bg)"/>
+  <g clip-path="url(#avatarClip)">
+    <path d="M-38 402C38 299 88 293 154 311" fill="none" stroke="#FF6B35" stroke-width="40" stroke-linecap="round" opacity=".9"/>
+    <path d="M394 -22C442 29 477 84 534 118" fill="none" stroke="#4F9DDE" stroke-width="38" stroke-linecap="round" opacity=".9"/>
+    <path d="M70 560C95 424 169 393 256 390C345 387 423 421 452 560Z" fill="#111820"/>
+    <path d="M205 365L206 420C224 439 286 440 306 418L306 362Z" fill="#c47c59"/>
+    <ellipse cx="256" cy="226" rx="112" ry="143" fill="url(#skin)"/>
+    <ellipse cx="148" cy="239" rx="21" ry="34" fill="#d9926e"/>
+    <ellipse cx="364" cy="239" rx="21" ry="34" fill="#d9926e"/>
+    <path d="M150 172C153 91 196 59 259 59C329 59 365 100 365 176C343 146 315 135 270 132C224 129 188 140 150 172Z" fill="#2e2724"/>
+    <path d="M154 151C179 100 223 79 276 82C314 84 342 100 359 127C319 107 275 104 234 111C203 117 177 129 154 151Z" fill="#4a3b35" opacity=".62"/>
+    <path d="M157 282C168 327 195 361 233 373C275 386 324 367 348 329C358 314 364 296 364 278C346 292 332 301 319 306C304 312 291 312 275 306C260 301 246 301 231 306C214 312 198 311 185 303C174 297 165 290 157 282Z" fill="#3a2a24"/>
+    <path d="M176 285C188 275 201 270 220 270C234 270 246 275 256 283C267 274 281 270 295 270C312 270 327 276 338 286C317 280 302 282 288 290C276 297 264 301 256 301C247 301 235 297 223 290C210 282 194 280 176 285Z" fill="#2b211e"/>
+    <path d="M183 211C204 199 226 197 245 204" fill="none" stroke="#3b2b26" stroke-width="9" stroke-linecap="round"/>
+    <path d="M269 204C290 197 313 199 332 211" fill="none" stroke="#3b2b26" stroke-width="9" stroke-linecap="round"/>
+    <ellipse cx="215" cy="226" rx="9" ry="7" fill="#352a28"/>
+    <ellipse cx="300" cy="226" rx="9" ry="7" fill="#352a28"/>
+    <circle cx="218" cy="224" r="2" fill="#ffffff" opacity=".75"/>
+    <circle cx="303" cy="224" r="2" fill="#ffffff" opacity=".75"/>
+    <path d="M257 225C252 248 249 261 255 269C261 274 269 274 278 269" fill="none" stroke="#b5684c" stroke-width="5" stroke-linecap="round"/>
+    <path d="M232 318C246 326 267 326 282 317" fill="none" stroke="#8e4f42" stroke-width="5" stroke-linecap="round"/>
+    <g fill="none" stroke="#1e2732" stroke-width="7">
+      <rect x="166" y="198" width="82" height="53" rx="17"/>
+      <rect x="267" y="198" width="82" height="53" rx="17"/>
+      <path d="M248 218C255 212 262 212 269 218"/>
+      <path d="M166 211L138 205"/>
+      <path d="M349 211L377 205"/>
+    </g>
+    <path d="M158 403C193 376 218 372 256 388C295 371 326 378 355 405L338 512H173Z" fill="#10151c"/>
+    <path d="M206 385L255 421L306 384L323 430L286 458H225L189 430Z" fill="#171e27"/>
+    <path d="M255 421V512" stroke="#0a0f14" stroke-width="7"/>
+    <circle cx="256" cy="459" r="6" fill="#2d3742"/>
+  </g>
+  <circle cx="256" cy="256" r="248" fill="none" stroke="#dbe5ef" stroke-width="8"/>
+</svg>
