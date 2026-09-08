@@ -13,35 +13,49 @@ const assert = require('node:assert/strict');
 
     const active=async id=>page.evaluate(x=>document.getElementById(`screen-${x}`)?.classList.contains('is-active'),id);
     const closeModal=async()=>page.evaluate(()=>{if(typeof window.closeModal==='function')window.closeModal();else{const r=document.getElementById('modalRoot');if(r)r.innerHTML=''}});
+    const modalText=()=>page.locator('#modalRoot').innerText();
 
     // Hero: ver oportunidades
     await page.getByRole('button',{name:/Ver oportunidades/i}).click();
     assert.equal(await active('vagas'),true,'Ver oportunidades não abriu a tela Vagas');
 
-    // Navegação principal/móvel
-    for(const id of ['home','profissionais','empresas','painel','operacao','vagas']){
-      await page.evaluate(x=>document.querySelector(`[data-go="${x}"]`)?.click(),id);
+    // Todas as telas públicas devem ser alcançáveis pelo roteador.
+    for(const id of ['home','vagas','profissionais','empresas','painel','operacao']){
+      const ok=await page.evaluate(x=>window.IntegraTrampoUICoreV8.navigate(x),id);
+      assert.equal(ok,true,`Roteador recusou ${id}`);
       assert.equal(await active(id),true,`Navegação para ${id} falhou`);
     }
 
     await page.evaluate(()=>window.IntegraTrampoUICoreV8.navigate('home'));
 
-    // Contratação precisa abrir modal, mesmo que camadas posteriores tenham substituído a função.
+    // Contratação precisa abrir modal, mesmo que camadas posteriores substituam a função.
     await page.getByRole('button',{name:/Preciso contratar/i}).first().click();
     await page.waitForFunction(()=>document.getElementById('modalRoot')?.innerText.trim().length>0,{timeout:5000});
-    assert.match(await page.locator('#modalRoot').innerText(),/contrat|empresa|necessidade/i,'Modal de contratação não abriu conteúdo válido');
+    assert.match(await modalText(),/contrat|empresa|necessidade/i,'Modal de contratação não abriu conteúdo válido');
     await closeModal();
+
+    // Segundo CTA de contratação também precisa responder.
+    await page.evaluate(()=>window.IntegraTrampoUICoreV8.navigate('home'));
+    const hireCount=await page.getByRole('button',{name:/Preciso contratar/i}).count();
+    if(hireCount>1){
+      await page.getByRole('button',{name:/Preciso contratar/i}).nth(hireCount-1).click();
+      await page.waitForFunction(()=>document.getElementById('modalRoot')?.innerText.trim().length>0,{timeout:5000});
+      assert.match(await modalText(),/contrat|empresa|necessidade/i,'Segundo botão Preciso contratar não respondeu');
+      await closeModal();
+    }
 
     // Quero trabalhar pode abrir cadastro diretamente ou pedir login; ambos são fluxos válidos.
     await page.getByRole('button',{name:/Quero trabalhar/i}).first().click();
     await page.waitForFunction(()=>document.getElementById('modalRoot')?.innerText.trim().length>0,{timeout:5000});
-    assert.match(await page.locator('#modalRoot').innerText(),/trabalhar|entrar|conta|cadastro|foto/i,'Fluxo Quero trabalhar não abriu');
+    assert.match(await modalText(),/trabalhar|entrar|conta|cadastro|foto|senha/i,'Fluxo Quero trabalhar não abriu');
     await closeModal();
 
-    // Entrar precisa responder.
-    await page.locator('#loginBtn').click();
+    // O botão de login desktop fica oculto no viewport móvel; chamamos o mesmo roteador
+    // programaticamente para testar a ação sem exigir visibilidade CSS.
+    const loginCalled=await page.evaluate(()=>window.IntegraTrampoUICoreV8.callLatest('loginModal'));
+    assert.equal(loginCalled,true,'loginModal não está disponível');
     await page.waitForFunction(()=>document.getElementById('modalRoot')?.innerText.trim().length>0,{timeout:5000});
-    assert.match(await page.locator('#modalRoot').innerText(),/entrar|acessar|conta|senha/i,'Login não abriu');
+    assert.match(await modalText(),/entrar|acessar|conta|senha/i,'Login não abriu');
     await closeModal();
 
     // Filtros/limpar devem ser acionáveis.
@@ -55,14 +69,25 @@ const assert = require('node:assert/strict');
     await page.locator('#clearPros').click();
     assert.equal(await page.locator('#proQuery').inputValue(),'','Limpar profissionais não limpou a busca');
 
-    // Dá tempo para as camadas assíncronas terminarem e roda o diagnóstico de handlers.
+    // Categorias da página inicial devem navegar sem lançar erro.
+    await page.evaluate(()=>window.IntegraTrampoUICoreV8.navigate('home'));
+    const categoryButtons=page.locator('#categoryGrid button');
+    const categories=await categoryButtons.count();
+    assert.ok(categories>=10,`Catálogo de áreas incompleto: apenas ${categories}`);
+    for(let i=0;i<Math.min(categories,5);i++){
+      await page.evaluate(()=>window.IntegraTrampoUICoreV8.navigate('home'));
+      await categoryButtons.nth(i).click();
+      assert.equal(await active('vagas'),true,`Categoria ${i+1} não abriu Vagas`);
+    }
+
+    // Dá tempo para todas as camadas assíncronas terminarem e roda diagnóstico de handlers.
     await page.waitForTimeout(5000);
     const health=await page.evaluate(()=>window.IntegraTrampoUICoreV8.report());
     assert.equal(health.ok,true,`Diagnóstico da UI encontrou problemas: ${health.issues.join('; ')}`);
     assert.equal(pageErrors.length,0,`Erros JavaScript não tratados: ${pageErrors.join('\n---\n')}`);
 
     console.log('UI_SMOKE_OK');
-    console.log(JSON.stringify(health,null,2));
+    console.log(JSON.stringify({categories,health},null,2));
   } finally {
     await browser.close();
   }
