@@ -47,7 +47,8 @@
     };
   }
 
-  function loadAdminEnhanced(){if(document.querySelector('script[data-integratrampo-admin-enhanced]'))return;const s=document.createElement('script');s.src='./admin-enhanced.js?v=2';s.defer=true;s.dataset.integratrampoAdminEnhanced='1';document.body.appendChild(s)}
+  function loadAdminControls(){if(document.querySelector('script[data-integratrampo-admin-controls-v3]'))return;const s=document.createElement('script');s.src='./admin-controls-v3.js?v=1';s.defer=true;s.dataset.integratrampoAdminControlsV3='1';document.body.appendChild(s)}
+  function loadAdminEnhanced(){if(document.querySelector('script[data-integratrampo-admin-enhanced]')){loadAdminControls();return}const s=document.createElement('script');s.src='./admin-enhanced.js?v=2';s.defer=true;s.dataset.integratrampoAdminEnhanced='1';s.onload=loadAdminControls;s.onerror=loadAdminControls;document.body.appendChild(s)}
   function loadAdminLayer(){if(document.querySelector('script[data-integratrampo-admin]')){loadAdminEnhanced();return}const s=document.createElement('script');s.src='./admin.js?v=3';s.defer=true;s.dataset.integratrampoAdmin='1';s.onload=loadAdminEnhanced;s.onerror=loadAdminEnhanced;document.body.appendChild(s)}
   function loadSeoLayer(){if(document.querySelector('script[data-integratrampo-seo]')){loadAdminLayer();return}const s=document.createElement('script');s.src='./seo-init.js?v=1';s.defer=true;s.dataset.integratrampoSeo='1';s.onload=loadAdminLayer;s.onerror=loadAdminLayer;document.body.appendChild(s)}
   function loadPremiumLayer(){if(document.querySelector('script[data-integratrampo-premium]')){loadSeoLayer();return}const s=document.createElement('script');s.src='./premium.js?v=1';s.defer=true;s.dataset.integratrampoPremium='1';s.onload=loadSeoLayer;s.onerror=loadSeoLayer;document.body.appendChild(s)}
