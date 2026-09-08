@@ -1,63 +1,10 @@
-// IntegraTrampo · rastreamento de aquisição (primeiro toque + UTM)
-// Mantém o campo técnico `source` intacto e adiciona contexto de marketing
-// somente aos cadastros reais enviados para o Supabase.
+// IntegraTrampo · compatibilidade do carregador
+// A experiência atual usa apenas login próprio por e-mail/telefone + senha.
 (function(){
-  const STORAGE_KEY='it_acquisition_v1';
-  const params=new URLSearchParams(window.location.search);
-  const referrer=document.referrer||'';
-
-  function hostOf(url){try{return new URL(url).hostname.toLowerCase()}catch{return ''}}
-  function inferSource(){
-    const explicit=(params.get('utm_source')||params.get('src')||params.get('ref')||'').trim().toLowerCase();
-    if(explicit)return explicit.slice(0,120);
-    const host=hostOf(referrer);if(!host)return 'direct';
-    if(host.includes('instagram.com')||host.includes('l.instagram.com'))return 'instagram';
-    if(host.includes('facebook.com')||host.includes('fb.com'))return 'facebook';
-    if(host.includes('whatsapp.com')||host.includes('wa.me'))return 'whatsapp';
-    if(host.includes('google.'))return 'google';
-    if(host.includes('tiktok.com'))return 'tiktok';
-    return host.replace(/^www\./,'').slice(0,120)||'referral';
-  }
-  function clean(value,max=180){const v=(value||'').trim();return v?v.slice(0,max):null}
-
-  const current={
-    acquisition_source:clean(inferSource(),120),
-    acquisition_medium:clean(params.get('utm_medium')||(referrer?'referral':'direct'),120),
-    acquisition_campaign:clean(params.get('utm_campaign'),180),
-    acquisition_content:clean(params.get('utm_content'),180),
-    acquisition_term:clean(params.get('utm_term'),180),
-    referrer_url:clean(referrer,500),
-    landing_path:clean(window.location.pathname+window.location.search,500),
-    captured_at:new Date().toISOString()
-  };
-
-  let stored=null;try{stored=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch{}
-  const hasExplicitCampaign=['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src','ref'].some(k=>params.has(k));
-  if(!stored||hasExplicitCampaign){stored=current;try{localStorage.setItem(STORAGE_KEY,JSON.stringify(stored))}catch{}}
-  window.IntegraTrampoAcquisition=stored||current;
-
-  if(typeof apiPost==='function'){
-    const originalApiPost=apiPost;
-    apiPost=function(table,payload){
-      if(table==='it_professional_signups'||table==='it_hiring_requests'){
-        const a=window.IntegraTrampoAcquisition||{};
-        payload={...payload,acquisition_source:a.acquisition_source||'direct',acquisition_medium:a.acquisition_medium||null,acquisition_campaign:a.acquisition_campaign||null,acquisition_content:a.acquisition_content||null,acquisition_term:a.acquisition_term||null,referrer_url:a.referrer_url||null,landing_path:a.landing_path||window.location.pathname};
-      }
-      return originalApiPost(table,payload);
-    };
-  }
-
-  function loadAdminControls(){if(document.querySelector('script[data-integratrampo-admin-controls-v3]'))return;const s=document.createElement('script');s.src='./admin-controls-v3.js?v=1';s.defer=true;s.dataset.integratrampoAdminControlsV3='1';document.body.appendChild(s)}
-  function loadAdminEnhanced(){if(document.querySelector('script[data-integratrampo-admin-enhanced]')){loadAdminControls();return}const s=document.createElement('script');s.src='./admin-enhanced.js?v=2';s.defer=true;s.dataset.integratrampoAdminEnhanced='1';s.onload=loadAdminControls;s.onerror=loadAdminControls;document.body.appendChild(s)}
-  function loadAdminLayer(){if(document.querySelector('script[data-integratrampo-admin]')){loadAdminEnhanced();return}const s=document.createElement('script');s.src='./admin.js?v=3';s.defer=true;s.dataset.integratrampoAdmin='1';s.onload=loadAdminEnhanced;s.onerror=loadAdminEnhanced;document.body.appendChild(s)}
-  function loadSeoLayer(){if(document.querySelector('script[data-integratrampo-seo]')){loadAdminLayer();return}const s=document.createElement('script');s.src='./seo-init.js?v=1';s.defer=true;s.dataset.integratrampoSeo='1';s.onload=loadAdminLayer;s.onerror=loadAdminLayer;document.body.appendChild(s)}
-  function loadPremiumLayer(){if(document.querySelector('script[data-integratrampo-premium]')){loadSeoLayer();return}const s=document.createElement('script');s.src='./premium.js?v=1';s.defer=true;s.dataset.integratrampoPremium='1';s.onload=loadSeoLayer;s.onerror=loadSeoLayer;document.body.appendChild(s)}
-  function loadBabysitterLayer(){if(document.querySelector('script[data-integratrampo-baba]')){loadPremiumLayer();return}const s=document.createElement('script');s.src='./categoria-baba.js?v=1';s.defer=true;s.dataset.integratrampoBaba='1';s.onload=loadPremiumLayer;s.onerror=loadPremiumLayer;document.body.appendChild(s)}
-  function loadProfileControlsLayer(){if(document.querySelector('script[data-integratrampo-profile-controls]')){loadBabysitterLayer();return}const s=document.createElement('script');s.src='./profile-controls-v3.js?v=1';s.defer=true;s.dataset.integratrampoProfileControls='1';s.onload=loadBabysitterLayer;s.onerror=loadBabysitterLayer;document.body.appendChild(s)}
-  function loadOnboardingLayer(){if(document.querySelector('script[data-integratrampo-onboarding-v3]')){loadProfileControlsLayer();return}const s=document.createElement('script');s.src='./onboarding-v3.js?v=1';s.defer=true;s.dataset.integratrampoOnboardingV3='1';s.onload=loadProfileControlsLayer;s.onerror=loadProfileControlsLayer;document.body.appendChild(s)}
-  function loadUserPlusLayer(){if(document.querySelector('script[data-integratrampo-user-plus]')){loadOnboardingLayer();return}const s=document.createElement('script');s.src='./user-plus.js?v=2';s.defer=true;s.dataset.integratrampoUserPlus='1';s.onload=loadOnboardingLayer;s.onerror=loadOnboardingLayer;document.body.appendChild(s)}
-  function loadUserLayer(){if(document.querySelector('script[data-integratrampo-user]')){loadUserPlusLayer();return}const s=document.createElement('script');s.src='./user.js?v=3';s.defer=true;s.dataset.integratrampoUser='1';s.onload=loadUserPlusLayer;s.onerror=loadUserPlusLayer;document.body.appendChild(s)}
-  function loadAuthSocialV5(){if(document.querySelector('script[data-integratrampo-auth-social-v5]')){loadUserLayer();return}const s=document.createElement('script');s.src='./auth-social-v5.js?v=1';s.defer=true;s.dataset.integratrampoAuthSocialV5='1';s.onload=loadUserLayer;s.onerror=loadUserLayer;document.body.appendChild(s)}
-  function loadAuthV4(){if(document.querySelector('script[data-integratrampo-auth-v4]')){loadAuthSocialV5();return}const s=document.createElement('script');s.src='./auth-v4.js?v=1';s.defer=true;s.dataset.integratrampoAuthV4='1';s.onload=loadAuthSocialV5;s.onerror=loadAuthSocialV5;document.body.appendChild(s)}
-  window.addEventListener('load',()=>{if(document.querySelector('script[data-integratrampo-auth]')){loadAuthV4();return}const s=document.createElement('script');s.src='./auth.js?v=2';s.defer=true;s.dataset.integratrampoAuth='1';s.onload=loadAuthV4;s.onerror=loadAuthV4;document.body.appendChild(s)}, {once:true});
+  if(document.querySelector('script[data-integratrampo-tracking-v6]'))return;
+  const s=document.createElement('script');
+  s.src='./tracking-v6.js?v=1';
+  s.defer=true;
+  s.dataset.integratrampoTrackingV6='1';
+  document.body.appendChild(s);
 })();
