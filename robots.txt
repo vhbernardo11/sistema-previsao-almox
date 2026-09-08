@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://integratrampo-live-v3-vitor-hugo-bernardos-projects.vercel.app/sitemap.xml
