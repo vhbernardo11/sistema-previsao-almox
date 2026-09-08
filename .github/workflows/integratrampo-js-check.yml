@@ -1,0 +1,31 @@
+name: IntegraTrampo JS Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.js'
+      - '.github/workflows/integratrampo-js-check.yml'
+  workflow_dispatch:
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check JavaScript syntax
+        run: |
+          node --check app.js
+          node --check auth.js
+          node --check user.js
+          node --check user-plus.js
+          node --check onboarding-v3.js
+          node --check profile-controls-v3.js
+          node --check premium.js
+          node --check admin.js
+          node --check admin-enhanced.js
+          node --check admin-controls-v3.js
+          node --check tracking.js
