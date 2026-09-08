@@ -1,4 +1,4 @@
-// IntegraTrampo · núcleo de interação v8
+// IntegraTrampo · núcleo de interação v8.1
 // Roteia cliques principais por delegação, sempre chamando a versão mais recente
 // das funções globais. Também expõe um diagnóstico leve da interface.
 (function(){
@@ -114,7 +114,9 @@
     document.querySelectorAll('[onclick],[onchange],[oninput]').forEach(el=>{
       for(const attr of ['onclick','onchange','oninput']){
         const code=el.getAttribute(attr)||'';
-        const re=/\b([A-Za-z_$][\w$]*)\s*\(/g;let m;
+        // Ignora chamadas de método (ex.: document.getElementById(), el.click()) e
+        // valida apenas funções globais chamadas diretamente pelo HTML.
+        const re=/(?<!\.)\b([A-Za-z_$][\w$]*)\s*\(/g;let m;
         while((m=re.exec(code))){
           const name=m[1];
           if(!['if','for','while','switch','function','setTimeout','setInterval'].includes(name))found.add(name);
@@ -135,7 +137,6 @@
       const id=el.dataset.go;if(id&&!document.getElementById(`screen-${id}`))issues.push(`Navegação inválida: ${id}`);
     });
     for(const name of extractInlineFunctions()){
-      if(name==='document'||name==='window'||name==='console')continue;
       if(typeof window[name]!=='function'&&typeof window[name]!=='object')issues.push(`Handler inline inexistente: ${name}`);
     }
     const result={ok:issues.length===0,issues:[...new Set(issues)],runtimeErrors:[...runtimeErrors],checkedAt:new Date().toISOString()};
