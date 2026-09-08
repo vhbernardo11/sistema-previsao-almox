@@ -4,28 +4,29 @@ on:
   push:
     branches: [main]
     paths:
-      - '*.js'
+      - '**/*.js'
+      - '**/*.cjs'
       - '.github/workflows/integratrampo-js-check.yml'
   workflow_dispatch:
 
 jobs:
   syntax:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - name: Check JavaScript syntax
+          node-version: '22'
+      - name: Check every JavaScript file
+        shell: bash
         run: |
-          node --check app.js
-          node --check auth.js
-          node --check user.js
-          node --check user-plus.js
-          node --check onboarding-v3.js
-          node --check profile-controls-v3.js
-          node --check premium.js
-          node --check admin.js
-          node --check admin-enhanced.js
-          node --check admin-controls-v3.js
-          node --check tracking.js
+          set -euo pipefail
+          count=0
+          while IFS= read -r -d '' file; do
+            echo "Checking $file"
+            node --check "$file"
+            count=$((count+1))
+          done < <(find . -type f \( -name '*.js' -o -name '*.cjs' \) -not -path './node_modules/*' -print0)
+          echo "Checked $count JavaScript files successfully."
+          test "$count" -gt 0
