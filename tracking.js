@@ -79,14 +79,25 @@
     document.body.appendChild(admin);
   }
 
+  function loadUserPlusLayer(){
+    if(document.querySelector('script[data-integratrampo-user-plus]')){loadAdminLayer();return}
+    const plus=document.createElement('script');
+    plus.src='./user-plus.js?v=1';
+    plus.defer=true;
+    plus.dataset.integratrampoUserPlus='1';
+    plus.onload=loadAdminLayer;
+    plus.onerror=loadAdminLayer;
+    document.body.appendChild(plus);
+  }
+
   function loadUserLayer(){
-    if(document.querySelector('script[data-integratrampo-user]')){loadAdminLayer();return}
+    if(document.querySelector('script[data-integratrampo-user]')){loadUserPlusLayer();return}
     const user=document.createElement('script');
-    user.src='./user.js?v=1';
+    user.src='./user.js?v=2';
     user.defer=true;
     user.dataset.integratrampoUser='1';
-    user.onload=loadAdminLayer;
-    user.onerror=loadAdminLayer;
+    user.onload=loadUserPlusLayer;
+    user.onerror=loadUserPlusLayer;
     document.body.appendChild(user);
   }
 
@@ -100,7 +111,7 @@
     script.defer=true;
     script.dataset.integratrampoAuth='1';
     script.onload=loadUserLayer;
-    script.onerror=loadAdminLayer;
+    script.onerror=loadUserLayer;
     document.body.appendChild(script);
   },{once:true});
 })();
