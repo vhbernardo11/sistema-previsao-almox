@@ -87,4 +87,47 @@ if($('proCategory')) $('proCategory').onchange=()=>renderPros();
 if($('proOrder')) $('proOrder').onchange=()=>renderPros();
 if($('clearPros')) $('clearPros').onclick=()=>{$('proQuery').value='';$('proCategory').value='';$('proOrder').value='match';renderPros()};
 
+// Expansão de categorias: segurança subdividida e serviços residenciais.
+const extraServiceCategories=[
+  ['🛡️','Segurança de eventos'],
+  ['🚪','Controlador de acesso'],
+  ['👁️','Vigia'],
+  ['🛡️','Vigilante'],
+  ['🎨','Pintor residencial'],
+  ['🚰','Encanador'],
+  ['⚡','Eletricista']
+];
+const genericSecurityIndex=categories.findIndex(([,name])=>name==='Segurança');
+if(genericSecurityIndex>=0) categories.splice(genericSecurityIndex,1);
+extraServiceCategories.forEach(([icon,name])=>{
+  if(!categories.some(([,existing])=>existing===name)) categories.splice(Math.max(0,categories.length-1),0,[icon,name]);
+});
+
+const extraWorkerRoles=extraServiceCategories.map(([,name])=>name);
+const originalWorkerModal=workerModal;
+workerModal=function(){
+  originalWorkerModal();
+  const select=$('wRole');
+  if(select){
+    extraWorkerRoles.forEach(name=>{
+      if(![...select.options].some(o=>o.value===name||o.text===name)) select.add(new Option(name,name));
+    });
+  }
+};
+
+const originalHiringModal=hiringModal;
+hiringModal=function(){
+  originalHiringModal();
+  const select=$('hCat');
+  if(select){
+    extraWorkerRoles.forEach(name=>{
+      if(![...select.options].some(o=>o.value===name||o.text===name)) select.add(new Option(name,name));
+    });
+  }
+};
+
+if($('workerBtn')) $('workerBtn').onclick=workerModal;
+if($('hireBtn')) $('hireBtn').onclick=hiringModal;
+if($('hireBtn2')) $('hireBtn2').onclick=hiringModal;
+
 renderAll();
