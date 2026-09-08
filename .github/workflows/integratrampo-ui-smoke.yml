@@ -1,0 +1,39 @@
+name: IntegraTrampo UI Smoke
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  ui-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright for this run
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start static site
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/integratrampo-http.log 2>&1 &
+          echo $! > /tmp/integratrampo-http.pid
+          for i in {1..20}; do
+            curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/integratrampo-http.log
+          exit 1
+
+      - name: Test buttons, navigation and modals
+        run: node scripts/ui-smoke.cjs
