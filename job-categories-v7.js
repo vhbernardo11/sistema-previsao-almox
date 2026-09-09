@@ -1,4 +1,4 @@
-// IntegraTrampo · catálogo único de áreas/vagas v7.1
+// IntegraTrampo · catálogo único de áreas/vagas v7.2
 // Página inicial, cadastro profissional e pedido de contratação usam a mesma lista.
 // Atualização idempotente: evita loops de MutationObserver e travamentos no celular.
 (function(){
@@ -7,7 +7,7 @@
     ['🧹','Diarista'],['🧽','Faxineira'],['🧼','Limpeza'],['✨','Limpeza de eventos'],['🛎️','Recepção'],
     ['⚡','Eletricista'],['🚰','Encanador'],['🎨','Pintor'],['🖌️','Pintor residencial'],['🌿','Jardineiro'],
     ['🛡️','Segurança de eventos'],['🚪','Controlador de acesso'],['👁️','Vigia'],['🛡️','Vigilante'],
-    ['🧰','Serviços gerais'],['👶','Babá'],['•••','Outros']
+    ['🧰','Serviços gerais'],['👶','Babá'],['🤝','Cuidadora'],['•••','Outros']
   ];
   const names=CATALOG.map(x=>x[1]);
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
