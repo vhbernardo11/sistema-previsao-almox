@@ -2,21 +2,44 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "headers": [
     {
-      "source": "/(.*\\.js)",
+      "source": "/",
       "headers": [
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" },
         { "key": "Cache-Control", "value": "no-store, max-age=0" }
       ]
     },
     {
       "source": "/(.*\\.html)",
       "headers": [
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" },
         { "key": "Cache-Control", "value": "no-store, max-age=0" }
       ]
     },
     {
-      "source": "/",
+      "source": "/(.*\\.js)",
       "headers": [
+        { "key": "Content-Type", "value": "application/javascript; charset=utf-8" },
         { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
+    {
+      "source": "/(.*\\.css)",
+      "headers": [
+        { "key": "Content-Type", "value": "text/css; charset=utf-8" },
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
+        { "key": "Content-Type", "value": "application/manifest+json; charset=utf-8" },
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
+    {
+      "source": "/(.*\\.svg)",
+      "headers": [
+        { "key": "Content-Type", "value": "image/svg+xml" }
       ]
     }
   ]
