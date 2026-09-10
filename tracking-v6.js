@@ -52,7 +52,8 @@
     s.onload=()=>next&&next();s.onerror=()=>next&&next();document.body.appendChild(s);
   }
 
-  function loadMatchLayer(){loadScript('integratrampo-match-v9','./match-v9.js?v=2')}
+  function loadWhatsAppLayer(){loadScript('integratrampo-whatsapp-v11','./whatsapp-v11.js?v=1')}
+  function loadMatchLayer(){loadScript('integratrampo-match-v9','./match-v9.js?v=2',loadWhatsAppLayer)}
   function loadJobCatalog(){loadScript('integratrampo-job-categories-v7','./job-categories-v7.js?v=2',loadMatchLayer)}
   function loadAdminControls(){loadScript('integratrampo-admin-controls-v3','./admin-controls-v3.js?v=1',loadJobCatalog)}
   function loadAdminEnhanced(){loadScript('integratrampo-admin-enhanced','./admin-enhanced.js?v=2',loadAdminControls)}
@@ -60,7 +61,7 @@
   function loadSeoLayer(){loadScript('integratrampo-seo','./seo-init.js?v=1',loadAdminLayer)}
   function loadPremiumLayer(){loadScript('integratrampo-premium','./premium.js?v=1',loadSeoLayer)}
   function loadBabysitterLayer(){loadScript('integratrampo-baba','./categoria-baba.js?v=1',loadPremiumLayer)}
-  function loadProfileControlsLayer(){loadScript('integratrampo-profile-controls','./profile-controls-v3.js?v=1',loadBabysitterLayer)}
+  function loadProfileControlsLayer(){loadScript('integratrampo-profile-controls','./profile-controls-v3','./categoria-baba.js?v=1')}
   function loadOnboardingLayer(){loadScript('integratrampo-onboarding-v3','./onboarding-v3.js?v=1',loadProfileControlsLayer)}
   function loadUserPlusLayer(){loadScript('integratrampo-user-plus','./user-plus.js?v=2',loadOnboardingLayer)}
   function loadUserLayer(){loadScript('integratrampo-user','./user.js?v=3',loadUserPlusLayer)}
