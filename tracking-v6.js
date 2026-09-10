@@ -52,7 +52,7 @@
     s.onload=()=>next&&next();s.onerror=()=>next&&next();document.body.appendChild(s);
   }
 
-  function loadMatchLayer(){loadScript('integratrampo-match-v9','./match-v9.js?v=1')}
+  function loadMatchLayer(){loadScript('integratrampo-match-v9','./match-v9.js?v=2')}
   function loadJobCatalog(){loadScript('integratrampo-job-categories-v7','./job-categories-v7.js?v=2',loadMatchLayer)}
   function loadAdminControls(){loadScript('integratrampo-admin-controls-v3','./admin-controls-v3.js?v=1',loadJobCatalog)}
   function loadAdminEnhanced(){loadScript('integratrampo-admin-enhanced','./admin-enhanced.js?v=2',loadAdminControls)}
