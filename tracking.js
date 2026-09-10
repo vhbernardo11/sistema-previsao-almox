@@ -8,6 +8,6 @@
     document.body.appendChild(s);
   }
   load('integratrampo-ui-core-v8','./ui-core-v8.js?v=1',()=>{
-    load('integratrampo-tracking-v6','./tracking-v6.js?v=6');
+    load('integratrampo-tracking-v6','./tracking-v6.js?v=7');
   });
 })();
