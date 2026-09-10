@@ -85,11 +85,13 @@ const assert = require('node:assert/strict');
     await page.locator('#clearPros').click();
     assert.equal(await page.locator('#proQuery').inputValue(),'','Limpar profissionais não limpou a busca');
 
-    // Todos os 22 botões de categorias precisam levar a Vagas, não só uma amostra.
+    // Todos os botões do catálogo central precisam levar a Vagas.
     await page.evaluate(()=>window.IntegraTrampoUICoreV8.navigate('home'));
+    await page.waitForFunction(()=>Array.isArray(window.IntegraTrampoJobCategories)&&window.IntegraTrampoJobCategories.length>0,null,{timeout:12000});
     const categoryButtons=page.locator('#categoryGrid button');
     const categories=await categoryButtons.count();
-    assert.equal(categories,22,`Catálogo de áreas deveria ter 22 opções, encontrou ${categories}`);
+    const expectedCategories=await page.evaluate(()=>window.IntegraTrampoJobCategories.length);
+    assert.equal(categories,expectedCategories,`Catálogo central tem ${expectedCategories} opções, mas a página exibiu ${categories}`);
     for(let i=0;i<categories;i++){
       await page.evaluate(()=>window.IntegraTrampoUICoreV8.navigate('home'));
       await categoryButtons.nth(i).click();
@@ -117,7 +119,7 @@ const assert = require('node:assert/strict');
     assert.equal(pageErrors.length,0,`Erros JavaScript não tratados: ${pageErrors.join('\n---\n')}`);
 
     console.log('UI_SMOKE_OK');
-    console.log(JSON.stringify({categories,health},null,2));
+    console.log(JSON.stringify({categories,expectedCategories,health},null,2));
   } finally {
     await browser.close();
   }
