@@ -61,7 +61,7 @@
   function loadSeoLayer(){loadScript('integratrampo-seo','./seo-init.js?v=1',loadAdminLayer)}
   function loadPremiumLayer(){loadScript('integratrampo-premium','./premium.js?v=1',loadSeoLayer)}
   function loadBabysitterLayer(){loadScript('integratrampo-baba','./categoria-baba.js?v=1',loadPremiumLayer)}
-  function loadProfileControlsLayer(){loadScript('integratrampo-profile-controls','./profile-controls-v3','./categoria-baba.js?v=1')}
+  function loadProfileControlsLayer(){loadScript('integratrampo-profile-controls','./profile-controls-v3.js?v=1',loadBabysitterLayer)}
   function loadOnboardingLayer(){loadScript('integratrampo-onboarding-v3','./onboarding-v3.js?v=1',loadProfileControlsLayer)}
   function loadUserPlusLayer(){loadScript('integratrampo-user-plus','./user-plus.js?v=2',loadOnboardingLayer)}
   function loadUserLayer(){loadScript('integratrampo-user','./user.js?v=3',loadUserPlusLayer)}
