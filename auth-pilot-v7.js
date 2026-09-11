@@ -1,10 +1,11 @@
-// IntegraTrampo · cadastro piloto v7
+// IntegraTrampo · cadastro piloto v8
 // Fase piloto: cria a conta já confirmada no backend e entra imediatamente.
 // A chave administrativa permanece somente na Edge Function pilot-signup.
 (function(){
   const $id=id=>document.getElementById(id);
   const tell=m=>typeof toast==='function'?toast(m):alert(m);
   const isEmail=v=>/^\S+@\S+\.\S+$/.test(String(v||'').trim());
+  const strongEnough=v=>String(v||'').length>=10&&/[A-Za-zÀ-ÿ]/.test(String(v||''))&&/\d/.test(String(v||''));
 
   function normalizePhone(value){
     let d=String(value||'').replace(/\D/g,'');
@@ -17,10 +18,13 @@
 
   function simplifySignupCopy(){
     const help=document.querySelector('#auth6Body .auth6-help');
-    if(help)help.textContent='Fase piloto: criou a conta, já pode entrar. Não pedimos confirmação por e-mail ou SMS.';
+    if(help)help.textContent='Fase piloto: criou a conta, já pode entrar. Use uma senha com pelo menos 10 caracteres, incluindo letra e número.';
     const notice=document.querySelector('#auth6Body .notice');
     if(notice&&/Crie sua conta IntegraTrampo/i.test(notice.textContent||'')){
-      notice.innerHTML='👤 <b>Cadastro simples.</b> Escolha e-mail ou telefone, crie sua senha e pronto. Para trabalhar, a foto continua obrigatória no cadastro profissional.';
+      notice.innerHTML='👤 <b>Cadastro simples.</b> Escolha e-mail ou telefone, crie uma senha segura e pronto. Para trabalhar, a foto continua obrigatória no cadastro profissional.';
+    }
+    for(const id of ['auth6SignupPassword','auth6SignupConfirm']){
+      const input=$id(id);if(!input)continue;input.minLength=10;input.placeholder='10+ caracteres, com letra e número';
     }
   }
 
@@ -44,7 +48,7 @@
 
     if(!sb){tell('A conexão ainda está carregando. Tente novamente em instantes.');return}
     if(name.length<2){tell('Informe seu nome completo.');return}
-    if(password.length<8){tell('Crie uma senha com pelo menos 8 caracteres.');return}
+    if(!strongEnough(password)){tell('Crie uma senha com pelo menos 10 caracteres, incluindo letra e número.');return}
     if(password!==confirm){tell('As senhas não são iguais.');return}
     if(mode==='email'&&!isEmail(identifier)){tell('Informe um e-mail válido.');return}
     const phone=mode==='phone'?normalizePhone(identifier):'';
@@ -58,6 +62,12 @@
       });
 
       if(error||!data?.ok){
+        if(data?.code==='rate_limited'){
+          const min=Math.max(1,Math.ceil(Number(data?.retry_after_seconds||60)/60));
+          throw new Error(`Muitas tentativas de cadastro a partir deste acesso. Tente novamente em cerca de ${min} minuto${min===1?'':'s'}.`);
+        }
+        if(data?.code==='rate_limit_unavailable')throw new Error('O cadastro está temporariamente protegido. Tente novamente em alguns instantes.');
+        if(data?.code==='weak_password')throw new Error('Crie uma senha com pelo menos 10 caracteres, incluindo letra e número.');
         // Se a conta já existia, tentamos simplesmente entrar com a senha informada.
         const creds=mode==='email'?{email:loginIdentifier,password}:{phone:loginIdentifier,password};
         const loginTry=await sb.auth.signInWithPassword(creds);
@@ -97,5 +107,5 @@
 
   // Ajusta também o texto caso o formulário já esteja aberto quando esta camada carregar.
   setTimeout(simplifySignupCopy,0);
-  window.IntegraTrampoPilotAuthV7={version:7,noSignupConfirmation:true};
+  window.IntegraTrampoPilotAuthV7={version:8,noSignupConfirmation:true,signupProtection:true};
 })();
