@@ -53,65 +53,52 @@ const assert=require('node:assert/strict');
     }
 
     await page.waitForFunction(()=>window.IntegraTrampoStage11Favorites?.version===11,{timeout:12000});
-    const stage11Version=await page.evaluate(()=>window.IntegraTrampoStage11Favorites?.version||0);
-    assert.equal(stage11Version,11,'Etapa 11 não foi carregada');
-    await page.evaluate(()=>window.openStage11Favorites?.());
-    await waitModal();
-    assert.match(await modalText(),/favoritos|sincronizados|conta|entrar/i,'Etapa 11 não abriu o fluxo de favoritos');
-    await closeModal();
+    assert.equal(await page.evaluate(()=>window.IntegraTrampoStage11Favorites?.version||0),11,'Etapa 11 não foi carregada');
+    await page.evaluate(()=>window.openStage11Favorites?.());await waitModal();
+    assert.match(await modalText(),/favoritos|sincronizados|conta|entrar/i,'Etapa 11 não abriu o fluxo de favoritos');await closeModal();
 
     const firstProfessionalId=await page.evaluate(()=>Array.isArray(window.publicPros)&&window.publicPros.length?window.publicPros[0].id:(typeof publicPros!=='undefined'&&Array.isArray(publicPros)&&publicPros.length?publicPros[0].id:null));
     if(firstProfessionalId){
-      await page.evaluate(id=>window.openPro?.(id),firstProfessionalId);
-      await waitModal();
-      await page.waitForTimeout(80);
-      const saveProfessional=page.locator('#modalRoot [data-stage11-pro]');
-      assert.equal(await saveProfessional.count(),1,'Perfil não recebeu ação de favorito da Etapa 11');
-      await closeModal();
+      await page.evaluate(id=>window.openPro?.(id),firstProfessionalId);await waitModal();await page.waitForTimeout(80);
+      assert.equal(await page.locator('#modalRoot [data-stage11-pro]').count(),1,'Perfil não recebeu ação de favorito da Etapa 11');await closeModal();
     }
 
     await page.waitForFunction(()=>window.IntegraTrampoStage12Recommendations?.version===12,{timeout:12000});
-    const stage12Version=await page.evaluate(()=>window.IntegraTrampoStage12Recommendations?.version||0);
-    assert.equal(stage12Version,12,'Etapa 12 não foi carregada');
-    await page.evaluate(()=>window.openStage12Recommendations?.());
-    await waitModal();
-    assert.match(await modalText(),/recomenda|afinidade|personaliz|conta|entrar/i,'Etapa 12 não abriu o fluxo de recomendações');
-    await closeModal();
+    assert.equal(await page.evaluate(()=>window.IntegraTrampoStage12Recommendations?.version||0),12,'Etapa 12 não foi carregada');
+    await page.evaluate(()=>window.openStage12Recommendations?.());await waitModal();
+    assert.match(await modalText(),/recomenda|afinidade|personaliz|conta|entrar/i,'Etapa 12 não abriu o fluxo de recomendações');await closeModal();
 
     await page.waitForFunction(()=>window.IntegraTrampoStage13Alerts?.version===13,{timeout:12000});
-    const stage13Version=await page.evaluate(()=>window.IntegraTrampoStage13Alerts?.version||0);
-    assert.equal(stage13Version,13,'Etapa 13 não foi carregada');
-    await page.evaluate(()=>window.openStage13Alerts?.());
-    await waitModal();
-    assert.match(await modalText(),/alertas|afinidade|conta|entrar/i,'Etapa 13 não abriu o fluxo de alertas inteligentes');
-    await closeModal();
+    assert.equal(await page.evaluate(()=>window.IntegraTrampoStage13Alerts?.version||0),13,'Etapa 13 não foi carregada');
+    await page.evaluate(()=>window.openStage13Alerts?.());await waitModal();
+    assert.match(await modalText(),/alertas|afinidade|conta|entrar/i,'Etapa 13 não abriu o fluxo de alertas inteligentes');await closeModal();
 
-    // Etapa 14 deve carregar depois dos alertas e funcionar também como busca pública.
     await page.waitForFunction(()=>window.IntegraTrampoStage14Search?.version===14,{timeout:12000});
-    const stage14Version=await page.evaluate(()=>window.IntegraTrampoStage14Search?.version||0);
-    assert.equal(stage14Version,14,'Etapa 14 não foi carregada');
-    await page.evaluate(()=>window.go?.('vagas'));
-    await page.waitForTimeout(120);
+    assert.equal(await page.evaluate(()=>window.IntegraTrampoStage14Search?.version||0),14,'Etapa 14 não foi carregada');
+    await page.evaluate(()=>window.go?.('vagas'));await page.waitForTimeout(120);
     assert.equal(await page.locator('#screen-vagas [data-stage14-entry]').count(),1,'Vagas não recebeu botão de busca avançada');
-    await page.evaluate(()=>window.go?.('profissionais'));
-    await page.waitForTimeout(120);
+    await page.evaluate(()=>window.go?.('profissionais'));await page.waitForTimeout(120);
     assert.equal(await page.locator('#screen-profissionais [data-stage14-entry]').count(),1,'Profissionais não recebeu botão de busca avançada');
-    await page.evaluate(()=>window.openStage14Search?.('all'));
-    await waitModal();
+    await page.evaluate(()=>window.openStage14Search?.('all'));await waitModal();
     assert.match(await modalText(),/busca inteligente|filtros|vagas|profissionais|afinidade/i,'Etapa 14 não abriu a busca inteligente');
+
+    // Etapa 15 deve carregar depois da busca, injetar a ação de salvar e manter fluxo seguro para visitante.
+    await page.waitForFunction(()=>window.IntegraTrampoStage15SavedSearches?.version===15,{timeout:12000});
+    assert.equal(await page.evaluate(()=>window.IntegraTrampoStage15SavedSearches?.version||0),15,'Etapa 15 não foi carregada');
+    await page.waitForTimeout(120);
+    assert.equal(await page.locator('#modalRoot [data-stage15-save-search]').count(),1,'Busca avançada não recebeu ação de salvar busca');
     await closeModal();
+    await page.evaluate(()=>window.openStage15SavedSearches?.());await waitModal();
+    assert.match(await modalText(),/buscas salvas|conta|entrar|filtros/i,'Etapa 15 não abriu o fluxo de buscas salvas');await closeModal();
 
     await page.waitForSelector('#adminAccessBtn',{state:'attached',timeout:12000});
     const adm=page.locator('#adminAccessBtn');
     if(await adm.isVisible()){
       await adm.click();await waitModal();
-      assert.match(await modalText(),/ADM|administr|senha|login/i,'Acesso ADM não abriu o login administrativo');
-      await closeModal();
+      assert.match(await modalText(),/ADM|administr|senha|login/i,'Acesso ADM não abriu o login administrativo');await closeModal();
     }
 
     if(errors.length)throw new Error(`Erros de página: ${errors.join(' | ')}`);
     console.log('UI_SMOKE_OK');
-  }finally{
-    await browser.close();
-  }
+  }finally{await browser.close()}
 })().catch(err=>{console.error('UI_SMOKE_FAIL');console.error(err);process.exit(1)});
