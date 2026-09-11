@@ -77,6 +77,15 @@ const assert=require('node:assert/strict');
       await closeModal();
     }
 
+    // Etapa 12 precisa carregar depois dos favoritos e explicar o fluxo mesmo sem login.
+    await page.waitForFunction(()=>window.IntegraTrampoStage12Recommendations?.version===12,{timeout:12000});
+    const stage12Version=await page.evaluate(()=>window.IntegraTrampoStage12Recommendations?.version||0);
+    assert.equal(stage12Version,12,'Etapa 12 não foi carregada');
+    await page.evaluate(()=>window.openStage12Recommendations?.());
+    await waitModal();
+    assert.match(await modalText(),/recomenda|afinidade|personaliz|conta|entrar/i,'Etapa 12 não abriu o fluxo de recomendações');
+    await closeModal();
+
     // Central ADM deve ao menos abrir a autenticação administrativa sem credenciais.
     await page.waitForSelector('#adminAccessBtn',{state:'attached',timeout:12000});
     const adm=page.locator('#adminAccessBtn');
