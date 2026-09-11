@@ -18,7 +18,6 @@ const assert=require('node:assert/strict');
       await page.waitForTimeout(80);
     };
 
-    // Navegação principal precisa responder usando os IDs reais declarados no index.html.
     const navTargets=['profissionais','vagas','empresas','painel'];
     for(const target of navTargets){
       await page.evaluate(t=>window.go?.(t),target);
@@ -28,7 +27,6 @@ const assert=require('node:assert/strict');
     }
     await page.evaluate(()=>window.go?.('home'));
 
-    // Botão de contratação precisa abrir fluxo válido.
     const hire=page.getByRole('button',{name:/Quero contratar|Preciso contratar/i}).first();
     if(await hire.count()){
       await hire.click();await waitModal();
@@ -36,20 +34,17 @@ const assert=require('node:assert/strict');
       await closeModal();
     }
 
-    // Quero trabalhar pode abrir cadastro diretamente ou pedir login; ambos são válidos.
     await page.getByRole('button',{name:/Quero trabalhar/i}).first().click();
     await waitModal();
     assert.match(await modalText(),/trabalhar|entrar|conta|cadastro|foto|senha/i,'Fluxo Quero trabalhar não abriu');
     await closeModal();
 
-    // Login próprio precisa abrir.
     const loginCalled=await page.evaluate(()=>window.IntegraTrampoUICoreV8.callLatest('loginModal'));
     assert.equal(loginCalled,true,'loginModal não está disponível');
     await waitModal();
     assert.match(await modalText(),/entrar|acessar|conta|senha/i,'Login não abriu');
     await closeModal();
 
-    // Sino pode abrir notificações legadas ou a Central de Atividades da Etapa 10.
     const notify=page.locator('#notifyBtn');
     if(await notify.isVisible()){
       await notify.click();await waitModal();
@@ -57,7 +52,6 @@ const assert=require('node:assert/strict');
       await closeModal();
     }
 
-    // Etapa 11 precisa estar carregada e o acesso aos favoritos deve abrir mesmo sem login.
     await page.waitForFunction(()=>window.IntegraTrampoStage11Favorites?.version===11,{timeout:12000});
     const stage11Version=await page.evaluate(()=>window.IntegraTrampoStage11Favorites?.version||0);
     assert.equal(stage11Version,11,'Etapa 11 não foi carregada');
@@ -66,7 +60,6 @@ const assert=require('node:assert/strict');
     assert.match(await modalText(),/favoritos|sincronizados|conta|entrar/i,'Etapa 11 não abriu o fluxo de favoritos');
     await closeModal();
 
-    // Se houver profissional publicado, o perfil deve receber o botão de salvar da Etapa 11.
     const firstProfessionalId=await page.evaluate(()=>Array.isArray(window.publicPros)&&window.publicPros.length?window.publicPros[0].id:(typeof publicPros!=='undefined'&&Array.isArray(publicPros)&&publicPros.length?publicPros[0].id:null));
     if(firstProfessionalId){
       await page.evaluate(id=>window.openPro?.(id),firstProfessionalId);
@@ -77,7 +70,6 @@ const assert=require('node:assert/strict');
       await closeModal();
     }
 
-    // Etapa 12 precisa carregar depois dos favoritos e explicar o fluxo mesmo sem login.
     await page.waitForFunction(()=>window.IntegraTrampoStage12Recommendations?.version===12,{timeout:12000});
     const stage12Version=await page.evaluate(()=>window.IntegraTrampoStage12Recommendations?.version||0);
     assert.equal(stage12Version,12,'Etapa 12 não foi carregada');
@@ -86,7 +78,6 @@ const assert=require('node:assert/strict');
     assert.match(await modalText(),/recomenda|afinidade|personaliz|conta|entrar/i,'Etapa 12 não abriu o fluxo de recomendações');
     await closeModal();
 
-    // Etapa 13 precisa carregar após as recomendações e expor o fluxo de alertas sem exigir sessão prévia.
     await page.waitForFunction(()=>window.IntegraTrampoStage13Alerts?.version===13,{timeout:12000});
     const stage13Version=await page.evaluate(()=>window.IntegraTrampoStage13Alerts?.version||0);
     assert.equal(stage13Version,13,'Etapa 13 não foi carregada');
@@ -95,7 +86,21 @@ const assert=require('node:assert/strict');
     assert.match(await modalText(),/alertas|afinidade|conta|entrar/i,'Etapa 13 não abriu o fluxo de alertas inteligentes');
     await closeModal();
 
-    // Central ADM deve ao menos abrir a autenticação administrativa sem credenciais.
+    // Etapa 14 deve carregar depois dos alertas e funcionar também como busca pública.
+    await page.waitForFunction(()=>window.IntegraTrampoStage14Search?.version===14,{timeout:12000});
+    const stage14Version=await page.evaluate(()=>window.IntegraTrampoStage14Search?.version||0);
+    assert.equal(stage14Version,14,'Etapa 14 não foi carregada');
+    await page.evaluate(()=>window.go?.('vagas'));
+    await page.waitForTimeout(120);
+    assert.equal(await page.locator('#screen-vagas [data-stage14-entry]').count(),1,'Vagas não recebeu botão de busca avançada');
+    await page.evaluate(()=>window.go?.('profissionais'));
+    await page.waitForTimeout(120);
+    assert.equal(await page.locator('#screen-profissionais [data-stage14-entry]').count(),1,'Profissionais não recebeu botão de busca avançada');
+    await page.evaluate(()=>window.openStage14Search?.('all'));
+    await waitModal();
+    assert.match(await modalText(),/busca inteligente|filtros|vagas|profissionais|afinidade/i,'Etapa 14 não abriu a busca inteligente');
+    await closeModal();
+
     await page.waitForSelector('#adminAccessBtn',{state:'attached',timeout:12000});
     const adm=page.locator('#adminAccessBtn');
     if(await adm.isVisible()){
@@ -104,7 +109,6 @@ const assert=require('node:assert/strict');
       await closeModal();
     }
 
-    // Nenhuma exceção JavaScript não tratada deve ocorrer no caminho crítico.
     if(errors.length)throw new Error(`Erros de página: ${errors.join(' | ')}`);
     console.log('UI_SMOKE_OK');
   }finally{
