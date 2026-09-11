@@ -86,6 +86,15 @@ const assert=require('node:assert/strict');
     assert.match(await modalText(),/recomenda|afinidade|personaliz|conta|entrar/i,'Etapa 12 não abriu o fluxo de recomendações');
     await closeModal();
 
+    // Etapa 13 precisa carregar após as recomendações e expor o fluxo de alertas sem exigir sessão prévia.
+    await page.waitForFunction(()=>window.IntegraTrampoStage13Alerts?.version===13,{timeout:12000});
+    const stage13Version=await page.evaluate(()=>window.IntegraTrampoStage13Alerts?.version||0);
+    assert.equal(stage13Version,13,'Etapa 13 não foi carregada');
+    await page.evaluate(()=>window.openStage13Alerts?.());
+    await waitModal();
+    assert.match(await modalText(),/alertas|afinidade|conta|entrar/i,'Etapa 13 não abriu o fluxo de alertas inteligentes');
+    await closeModal();
+
     // Central ADM deve ao menos abrir a autenticação administrativa sem credenciais.
     await page.waitForSelector('#adminAccessBtn',{state:'attached',timeout:12000});
     const adm=page.locator('#adminAccessBtn');
