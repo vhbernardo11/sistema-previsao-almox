@@ -1,4 +1,4 @@
-// IntegraTrampo · tracking + carregador v18
+// IntegraTrampo · tracking + carregador v19
 // Mantém aquisição/UTM e carrega somente o login próprio (e-mail/telefone + senha).
 (function(){
   const STORAGE_KEY='it_acquisition_v1';
@@ -52,7 +52,8 @@
     s.onload=()=>next&&next();s.onerror=()=>next&&next();document.body.appendChild(s);
   }
 
-  function loadStage12(){loadScript('integratrampo-stage12-recommendations','./stage12-recommendations.js?v=1')}
+  function loadStage13(){loadScript('integratrampo-stage13-alerts','./stage13-alerts.js?v=1')}
+  function loadStage12(){loadScript('integratrampo-stage12-recommendations','./stage12-recommendations.js?v=1',loadStage13)}
   function loadStage11(){loadScript('integratrampo-stage11-favorites','./stage11-favorites.js?v=1',loadStage12)}
   function loadStage10(){loadScript('integratrampo-stage10-activity','./stage10-activity.js?v=1',loadStage11)}
   function loadStage9(){loadScript('integratrampo-stage9-chat','./stage9-chat.js?v=1',loadStage10)}
