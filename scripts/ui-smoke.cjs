@@ -108,6 +108,30 @@ const assert=require('node:assert/strict');
     assert.match(shareProbe.pro,/\?profissional=123e4567-e89b-42d3-a456-426614174000$/,'Link direto de profissional inválido');
     assert.match(shareProbe.social,/\/api\/share\?type=job&id=123e4567-e89b-42d3-a456-426614174000&channel=whatsapp$/,'Link social da Etapa 16 inválido');
 
+    // Etapa 17 deve carregar após a 16, reconhecer aquisição e gerar link copiado rastreável sem quebrar o deep link.
+    await page.waitForFunction(()=>window.IntegraTrampoStage17Analytics?.version===17,{timeout:12000});
+    assert.equal(await page.evaluate(()=>window.IntegraTrampoStage17Analytics?.version||0),17,'Etapa 17 não foi carregada');
+    const analyticsProbe=await page.evaluate(()=>{
+      const id='123e4567-e89b-42d3-a456-426614174000';
+      const copied=window.IntegraTrampoStage17Analytics.copiedTrackingUrl({type:'opportunity',id});
+      const u=new URL(copied);
+      const visit=window.IntegraTrampoStage17Analytics.currentVisit();
+      return {
+        hook:typeof window.openStage17Analytics,
+        source:visit.source,
+        job:u.searchParams.get('vaga'),
+        copiedSource:u.searchParams.get('utm_source'),
+        copiedMedium:u.searchParams.get('utm_medium'),
+        copiedCampaign:u.searchParams.get('utm_campaign')
+      };
+    });
+    assert.equal(analyticsProbe.hook,'function','Etapa 17 não expôs o painel de aquisição');
+    assert.equal(analyticsProbe.source,'direct','Visita sem UTM/referrer deveria ser classificada como direta');
+    assert.equal(analyticsProbe.job,'123e4567-e89b-42d3-a456-426614174000','Etapa 17 quebrou o deep link de vaga');
+    assert.equal(analyticsProbe.copiedSource,'copy','Link copiado não recebeu origem de aquisição');
+    assert.equal(analyticsProbe.copiedMedium,'share','Link copiado não recebeu medium share');
+    assert.equal(analyticsProbe.copiedCampaign,'integratrampo_stage17','Link copiado não recebeu campanha da Etapa 17');
+
     await page.waitForSelector('#adminAccessBtn',{state:'attached',timeout:12000});
     const adm=page.locator('#adminAccessBtn');
     if(await adm.isVisible()){
