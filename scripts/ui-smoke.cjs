@@ -57,6 +57,26 @@ const assert=require('node:assert/strict');
       await closeModal();
     }
 
+    // Etapa 11 precisa estar carregada e o acesso aos favoritos deve abrir mesmo sem login.
+    await page.waitForFunction(()=>window.IntegraTrampoStage11Favorites?.version===11,{timeout:12000});
+    const stage11Version=await page.evaluate(()=>window.IntegraTrampoStage11Favorites?.version||0);
+    assert.equal(stage11Version,11,'Etapa 11 não foi carregada');
+    await page.evaluate(()=>window.openStage11Favorites?.());
+    await waitModal();
+    assert.match(await modalText(),/favoritos|sincronizados|conta|entrar/i,'Etapa 11 não abriu o fluxo de favoritos');
+    await closeModal();
+
+    // Se houver profissional publicado, o perfil deve receber o botão de salvar da Etapa 11.
+    const firstProfessionalId=await page.evaluate(()=>Array.isArray(window.publicPros)&&window.publicPros.length?window.publicPros[0].id:(typeof publicPros!=='undefined'&&Array.isArray(publicPros)&&publicPros.length?publicPros[0].id:null));
+    if(firstProfessionalId){
+      await page.evaluate(id=>window.openPro?.(id),firstProfessionalId);
+      await waitModal();
+      await page.waitForTimeout(80);
+      const saveProfessional=page.locator('#modalRoot [data-stage11-pro]');
+      assert.equal(await saveProfessional.count(),1,'Perfil não recebeu ação de favorito da Etapa 11');
+      await closeModal();
+    }
+
     // Central ADM deve ao menos abrir a autenticação administrativa sem credenciais.
     await page.waitForSelector('#adminAccessBtn',{state:'attached',timeout:12000});
     const adm=page.locator('#adminAccessBtn');
