@@ -18,21 +18,21 @@ const assert=require('node:assert/strict');
       await page.waitForTimeout(80);
     };
 
-    // Navegação principal precisa responder.
-    const navTargets=['profissionais','oportunidades','empresas','painel'];
+    // Navegação principal precisa responder usando os IDs reais declarados no index.html.
+    const navTargets=['profissionais','vagas','empresas','painel'];
     for(const target of navTargets){
       await page.evaluate(t=>window.go?.(t),target);
       await page.waitForTimeout(90);
       const active=await page.locator(`#screen-${target}`).evaluate(el=>el.classList.contains('is-active'));
       assert.equal(active,true,`Tela ${target} não ficou ativa`);
     }
-    await page.evaluate(()=>window.go?.('inicio'));
+    await page.evaluate(()=>window.go?.('home'));
 
-    // Botão Quero contratar precisa abrir fluxo válido.
-    const hire=page.getByRole('button',{name:/Quero contratar/i}).first();
+    // Botão de contratação precisa abrir fluxo válido.
+    const hire=page.getByRole('button',{name:/Quero contratar|Preciso contratar/i}).first();
     if(await hire.count()){
       await hire.click();await waitModal();
-      assert.match(await modalText(),/contratar|pedido|entrar|conta|vaga|profissional/i,'Fluxo Quero contratar não abriu');
+      assert.match(await modalText(),/contratar|pedido|entrar|conta|vaga|profissional/i,'Fluxo de contratação não abriu');
       await closeModal();
     }
 
@@ -49,7 +49,7 @@ const assert=require('node:assert/strict');
     assert.match(await modalText(),/entrar|acessar|conta|senha/i,'Login não abriu');
     await closeModal();
 
-    // Sino agora pode abrir notificações legadas ou a Central de Atividades da Etapa 10.
+    // Sino pode abrir notificações legadas ou a Central de Atividades da Etapa 10.
     const notify=page.locator('#notifyBtn');
     if(await notify.isVisible()){
       await notify.click();await waitModal();
