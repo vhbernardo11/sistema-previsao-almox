@@ -13,6 +13,7 @@
   const money=v=>v===null||v===undefined||v===''?'A combinar':`R$ ${Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
   const fmtDate=v=>{if(!v)return 'A combinar';try{return new Intl.DateTimeFormat('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).format(new Date(String(v).length===10?v+'T12:00:00':v))}catch{return String(v)}};
   const fmtTime=v=>v?String(v).slice(0,5):'';
+  const fmtRange=(start,end)=>start&&end?`${fmtTime(start)}–${fmtTime(end)}${String(end)<String(start)?' (+1 dia)':''}`:'Horário não definido';
   const statusLabel=v=>v==='confirmed'?'Confirmado':'Aguardando confirmação';
   const statusClass=v=>v==='confirmed'?'is-ok':'is-wait';
 
@@ -40,14 +41,14 @@
 
   function itemCard(i){
     const counterpart=i.viewer_side==='professional'?i.company_name:i.professional_name;
-    const time=i.start_time&&i.end_time?`${fmtTime(i.start_time)}–${fmtTime(i.end_time)}`:'Horário não definido';
+    const time=fmtRange(i.start_time,i.end_time);
     const source=i.source_type==='direct_offer'?'Proposta direta':'Vaga';
     return `<article class="it-stage8__item"><div class="it-stage8__date">${esc(fmtDate(i.service_date))}<br><span>${esc(time)}</span></div><div><h5>${esc(i.job_title||'Serviço')}</h5><div class="it-stage8__meta">${esc(counterpart||'Participante')} · ${esc(i.category||'')}<span class="it-stage8__source">${esc(source)}</span></div><div class="it-stage8__meta">📍 ${esc(i.city||'')} · 💰 ${esc(money(i.daily_rate))}</div><div class="it-stage8__confirm">${confirmations(i)}</div></div><div><span class="it-stage8__status ${statusClass(i.status)}">${esc(statusLabel(i.status))}</span><div style="margin-top:7px"><button class="btn btn--outline" onclick="focusStage8Service('${esc(i.service_id)}')">Ver serviço</button></div></div></article>`;
   }
 
   function sectionHtml(){
     if(!items.length)return '';
-    return `<section class="it-stage8" id="itStage8Schedule"><div class="it-stage8__head"><div><h4>📅 Minha agenda</h4><div class="small muted">Seus próximos serviços reservados e confirmados.</div></div><span class="it-stage8__badge">ETAPA 8</span></div><div class="it-stage8__list">${items.map(itemCard).join('')}</div><div class="it-stage8__footer">🛡️ A IntegraTrampo impede novas seleções ou propostas aceitas que coincidam com um compromisso ativo. Quando não há horário definido, o dia inteiro é considerado ocupado.</div></section>`;
+    return `<section class="it-stage8" id="itStage8Schedule"><div class="it-stage8__head"><div><h4>📅 Minha agenda</h4><div class="small muted">Seus próximos serviços reservados e confirmados.</div></div><span class="it-stage8__badge">ETAPA 8</span></div><div class="it-stage8__list">${items.map(itemCard).join('')}</div><div class="it-stage8__footer">🛡️ A IntegraTrampo impede novas seleções ou propostas aceitas que coincidam com um compromisso ativo — inclusive quando o turno atravessa a meia-noite. Quando não há horário definido, o dia inteiro é considerado ocupado.</div></section>`;
   }
 
   async function renderSchedule(){
@@ -99,7 +100,7 @@
         scheduleRender(60);return r;
       }catch(e){
         console.error('[Stage8 direct offer]',e);const m=String(e?.message||e||'');
-        if(m.includes('professional_schedule_conflict'))tell('Você já tem outro serviço nesse horário. Recuse esta proposta ou combine outra data/horário com o contratante.');
+        if(m.includes('professional_schedule_conflict'))tell('Você já tem outro serviço nesse horário, inclusive considerando viradas de dia. Recuse esta proposta ou combine outra data/horário com o contratante.');
         else if(m.includes('offer_not_pending'))tell('Essa proposta já foi respondida ou cancelada.');
         else if(m.includes('offer_expired'))tell('A data dessa proposta já passou.');
         else tell('Não foi possível aceitar a proposta agora.');
@@ -115,5 +116,5 @@
 
   async function init(){injectStyles();await waitForSupabase();installHooks();if(!sb)return;scheduleRender(320);try{sb.auth.onAuthStateChange(()=>scheduleRender(180))}catch{};setTimeout(installHooks,1000)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-  window.IntegraTrampoStage8Schedule={version:1,get items(){return items},refresh:renderSchedule};
+  window.IntegraTrampoStage8Schedule={version:2,get items(){return items},refresh:renderSchedule};
 })();
