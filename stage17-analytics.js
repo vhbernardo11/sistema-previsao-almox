@@ -64,6 +64,13 @@
     };
   }
 
+  function collectionEnabled(){
+    const host=String(window.location.hostname||'').toLowerCase();
+    if(window.location.protocol==='file:')return false;
+    if(host==='localhost'||host==='127.0.0.1'||host==='::1'||host.endsWith('.localhost'))return false;
+    return true;
+  }
+
   async function client(){
     for(let i=0;i<70;i++){
       if(window.IntegraTrampoSupabase?.rpc)return window.IntegraTrampoSupabase;
@@ -73,6 +80,7 @@
   }
 
   async function track(eventType,extra={}){
+    if(!collectionEnabled())return false;
     const key=sessionKey();if(!key)return false;
     const base=currentVisit(),payload={...base,...extra};
     try{
@@ -202,7 +210,7 @@
     adminObserver=new MutationObserver(()=>injectAdminEntry());adminObserver.observe(screen,{childList:true,subtree:true});injectAdminEntry();
   }
 
-  window.IntegraTrampoStage17Analytics={version:17,currentVisit,track,copiedTrackingUrl,openAdmin:window.openStage17Analytics,injectAdminEntry};
+  window.IntegraTrampoStage17Analytics={version:17,currentVisit,collectionEnabled,track,copiedTrackingUrl,openAdmin:window.openStage17Analytics,injectAdminEntry};
   injectStyles();
   wrapShareTracking();
   setTimeout(()=>{wrapShareTracking();observeAdmin();track('landing').catch(()=>{})},80);
