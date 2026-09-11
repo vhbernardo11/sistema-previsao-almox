@@ -1,4 +1,4 @@
-// IntegraTrampo · bootstrap de compatibilidade v16
+// IntegraTrampo · bootstrap de compatibilidade v17
 // Carrega primeiro o núcleo de interação (botões/navegação) e depois as demais camadas.
 (function(){
   function load(key,src,next){
@@ -8,6 +8,6 @@
     document.body.appendChild(s);
   }
   load('integratrampo-ui-core-v8','./ui-core-v8.js?v=1',()=>{
-    load('integratrampo-tracking-v6','./tracking-v6.js?v=14');
+    load('integratrampo-tracking-v6','./tracking-v6.js?v=15');
   });
 })();
