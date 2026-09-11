@@ -1,4 +1,4 @@
-// IntegraTrampo · tracking + carregador v8
+// IntegraTrampo · tracking + carregador v9
 // Mantém aquisição/UTM e carrega somente o login próprio (e-mail/telefone + senha).
 (function(){
   const STORAGE_KEY='it_acquisition_v1';
@@ -52,7 +52,8 @@
     s.onload=()=>next&&next();s.onerror=()=>next&&next();document.body.appendChild(s);
   }
 
-  function loadStage4(){loadScript('integratrampo-stage4-closeout','./stage4-closeout.js?v=1')}
+  function loadStage5(){loadScript('integratrampo-stage5-safety','./stage5-safety.js?v=1')}
+  function loadStage4(){loadScript('integratrampo-stage4-closeout','./stage4-closeout.js?v=1',loadStage5)}
   function loadWhatsAppLayer(){loadScript('integratrampo-whatsapp-v11','./whatsapp-v11.js?v=1',loadStage4)}
   function loadMatchLayer(){loadScript('integratrampo-match-v9','./match-v9.js?v=2',loadWhatsAppLayer)}
   function loadJobCatalog(){loadScript('integratrampo-job-categories-v7','./job-categories-v7.js?v=2',loadMatchLayer)}
