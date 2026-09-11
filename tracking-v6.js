@@ -1,4 +1,4 @@
-// IntegraTrampo · tracking + carregador v15
+// IntegraTrampo · tracking + carregador v16
 // Mantém aquisição/UTM e carrega somente o login próprio (e-mail/telefone + senha).
 (function(){
   const STORAGE_KEY='it_acquisition_v1';
@@ -72,7 +72,7 @@
   function loadOnboardingLayer(){loadScript('integratrampo-onboarding-v3','./onboarding-v3.js?v=1',loadProfileControlsLayer)}
   function loadUserPlusLayer(){loadScript('integratrampo-user-plus','./user-plus.js?v=2',loadOnboardingLayer)}
   function loadUserLayer(){loadScript('integratrampo-user','./user.js?v=3',loadUserPlusLayer)}
-  function loadPilotAuth(){loadScript('integratrampo-auth-pilot-v7','./auth-pilot-v7.js?v=1',loadUserLayer)}
+  function loadPilotAuth(){loadScript('integratrampo-auth-pilot-v7','./auth-pilot-v7.js?v=2',loadUserLayer)}
   function loadSimpleAuth(){loadScript('integratrampo-auth-simple-v6','./auth-simple-v6.js?v=2',loadPilotAuth)}
 
   window.addEventListener('load',()=>{
