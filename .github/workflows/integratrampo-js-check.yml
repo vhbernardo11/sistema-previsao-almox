@@ -30,3 +30,5 @@ jobs:
           done < <(find . -type f \( -name '*.js' -o -name '*.cjs' \) -not -path './node_modules/*' -print0)
           echo "Checked $count JavaScript files successfully."
           test "$count" -gt 0
+      - name: Test Stage 16 social preview handler
+        run: node scripts/stage16-share-api-smoke.cjs
