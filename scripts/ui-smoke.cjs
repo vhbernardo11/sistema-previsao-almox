@@ -91,6 +91,23 @@ const assert=require('node:assert/strict');
     await page.evaluate(()=>window.openStage15SavedSearches?.());await waitModal();
     assert.match(await modalText(),/buscas salvas|conta|entrar|filtros/i,'Etapa 15 não abriu o fluxo de buscas salvas');await closeModal();
 
+    // Etapa 16 deve gerar links canônicos do app e rotas sociais sem expor estado privado.
+    await page.waitForFunction(()=>window.IntegraTrampoStage16Share?.version===1,{timeout:12000});
+    assert.equal(await page.evaluate(()=>window.IntegraTrampoStage16Share?.version||0),1,'Etapa 16 não foi carregada');
+    const shareProbe=await page.evaluate(()=>{
+      const id='123e4567-e89b-42d3-a456-426614174000';
+      return {
+        job:window.IntegraTrampoStage16Share.directUrl('job',id),
+        pro:window.IntegraTrampoStage16Share.directUrl('pro',id),
+        social:window.IntegraTrampoStage16Share.socialUrl('job',id,'whatsapp'),
+        hook:typeof window.shareIntegraTrampo
+      };
+    });
+    assert.equal(shareProbe.hook,'function','Etapa 16 não expôs o gancho de compartilhamento');
+    assert.match(shareProbe.job,/\?vaga=123e4567-e89b-42d3-a456-426614174000$/,'Link direto de vaga inválido');
+    assert.match(shareProbe.pro,/\?profissional=123e4567-e89b-42d3-a456-426614174000$/,'Link direto de profissional inválido');
+    assert.match(shareProbe.social,/\/api\/share\?type=job&id=123e4567-e89b-42d3-a456-426614174000&channel=whatsapp$/,'Link social da Etapa 16 inválido');
+
     await page.waitForSelector('#adminAccessBtn',{state:'attached',timeout:12000});
     const adm=page.locator('#adminAccessBtn');
     if(await adm.isVisible()){
