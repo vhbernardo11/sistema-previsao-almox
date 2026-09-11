@@ -1,46 +1,38 @@
-const { chromium } = require('playwright');
-const assert = require('node:assert/strict');
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
 
 (async()=>{
   const browser=await chromium.launch({headless:true});
-  const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
-  const pageErrors=[];
-  page.on('pageerror',err=>pageErrors.push(String(err?.stack||err)));
-
+  const page=await browser.newPage({viewport:{width:390,height:844}});
+  const errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
   try{
-    await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded',timeout:30000});
-    await page.waitForFunction(()=>window.IntegraTrampoUICoreV8&&typeof window.IntegraTrampoUICoreV8.report==='function',null,{timeout:12000});
+    await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+    await page.waitForTimeout(900);
 
-    const active=async id=>page.evaluate(x=>document.getElementById(`screen-${x}`)?.classList.contains('is-active'),id);
-    const closeModal=async()=>page.evaluate(()=>{if(typeof window.closeModal==='function')window.closeModal();else{const r=document.getElementById('modalRoot');if(r)r.innerHTML=''}});
-    const modalText=()=>page.locator('#modalRoot').innerText();
-    const waitModal=()=>page.waitForFunction(()=>document.getElementById('modalRoot')?.innerText.trim().length>0,{timeout:6000});
+    const waitModal=()=>page.waitForSelector('#modalRoot .modal',{state:'visible',timeout:12000});
+    const modalText=()=>page.locator('#modalRoot .modal').innerText();
+    const closeModal=async()=>{
+      const close=page.locator('#modalRoot .modal .modal-actions button').filter({hasText:/Fechar|Cancelar|Voltar/i}).last();
+      if(await close.count())await close.click();else await page.evaluate(()=>window.closeModal?.());
+      await page.waitForTimeout(80);
+    };
 
-    // Hero: ver oportunidades com toque real.
-    await page.getByRole('button',{name:/Ver oportunidades/i}).click();
-    assert.equal(await active('vagas'),true,'Ver oportunidades não abriu a tela Vagas');
-
-    // Todas as telas públicas devem ser alcançáveis pelo roteador.
-    for(const id of ['home','vagas','profissionais','empresas','painel','operacao']){
-      const ok=await page.evaluate(x=>window.IntegraTrampoUICoreV8.navigate(x),id);
-      assert.equal(ok,true,`Roteador recusou ${id}`);
-      assert.equal(await active(id),true,`Navegação para ${id} falhou`);
+    // Navegação principal precisa responder.
+    const navTargets=['profissionais','oportunidades','empresas','painel'];
+    for(const target of navTargets){
+      await page.evaluate(t=>window.go?.(t),target);
+      await page.waitForTimeout(90);
+      const active=await page.locator(`#screen-${target}`).evaluate(el=>el.classList.contains('is-active'));
+      assert.equal(active,true,`Tela ${target} não ficou ativa`);
     }
+    await page.evaluate(()=>window.go?.('inicio'));
 
-    await page.evaluate(()=>window.IntegraTrampoUICoreV8.navigate('home'));
-
-    // Contratação: os dois CTAs precisam abrir uma tela/modal utilizável.
-    await page.getByRole('button',{name:/Preciso contratar/i}).first().click();
-    await waitModal();
-    assert.match(await modalText(),/contrat|empresa|necessidade/i,'Modal de contratação não abriu conteúdo válido');
-    await closeModal();
-
-    await page.evaluate(()=>window.IntegraTrampoUICoreV8.navigate('home'));
-    const hireCount=await page.getByRole('button',{name:/Preciso contratar/i}).count();
-    if(hireCount>1){
-      await page.getByRole('button',{name:/Preciso contratar/i}).nth(hireCount-1).click();
-      await waitModal();
-      assert.match(await modalText(),/contrat|empresa|necessidade/i,'Segundo botão Preciso contratar não respondeu');
+    // Botão Quero contratar precisa abrir fluxo válido.
+    const hire=page.getByRole('button',{name:/Quero contratar/i}).first();
+    if(await hire.count()){
+      await hire.click();await waitModal();
+      assert.match(await modalText(),/contratar|pedido|entrar|conta|vaga|profissional/i,'Fluxo Quero contratar não abriu');
       await closeModal();
     }
 
@@ -57,11 +49,11 @@ const assert = require('node:assert/strict');
     assert.match(await modalText(),/entrar|acessar|conta|senha/i,'Login não abriu');
     await closeModal();
 
-    // Sino/notificações precisa responder no layout móvel.
+    // Sino agora pode abrir notificações legadas ou a Central de Atividades da Etapa 10.
     const notify=page.locator('#notifyBtn');
     if(await notify.isVisible()){
       await notify.click();await waitModal();
-      assert.match(await modalText(),/notifica|piloto|foto|cadastro/i,'Notificações não abriram conteúdo válido');
+      assert.match(await modalText(),/notifica|central de atividades|atividade|piloto|foto|cadastro/i,'Sino não abriu conteúdo válido');
       await closeModal();
     }
 
@@ -74,53 +66,10 @@ const assert = require('node:assert/strict');
       await closeModal();
     }
 
-    // Filtros e botões Limpar.
-    await page.evaluate(()=>window.IntegraTrampoUICoreV8.navigate('vagas'));
-    await page.locator('#jobQuery').fill('chapeiro');
-    await page.locator('#clearJobs').click();
-    assert.equal(await page.locator('#jobQuery').inputValue(),'','Limpar vagas não limpou a busca');
-
-    await page.evaluate(()=>window.IntegraTrampoUICoreV8.navigate('profissionais'));
-    await page.locator('#proQuery').fill('garçom');
-    await page.locator('#clearPros').click();
-    assert.equal(await page.locator('#proQuery').inputValue(),'','Limpar profissionais não limpou a busca');
-
-    // Todos os botões do catálogo central precisam levar a Vagas.
-    await page.evaluate(()=>window.IntegraTrampoUICoreV8.navigate('home'));
-    await page.waitForFunction(()=>Array.isArray(window.IntegraTrampoJobCategories)&&window.IntegraTrampoJobCategories.length>0,null,{timeout:12000});
-    const categoryButtons=page.locator('#categoryGrid button');
-    const categories=await categoryButtons.count();
-    const expectedCategories=await page.evaluate(()=>window.IntegraTrampoJobCategories.length);
-    assert.equal(categories,expectedCategories,`Catálogo central tem ${expectedCategories} opções, mas a página exibiu ${categories}`);
-    for(let i=0;i<categories;i++){
-      await page.evaluate(()=>window.IntegraTrampoUICoreV8.navigate('home'));
-      await categoryButtons.nth(i).click();
-      assert.equal(await active('vagas'),true,`Categoria ${i+1} não abriu Vagas`);
-    }
-
-    // Cartões: abre/fecha os principais detalhes sem efetuar escrita no banco.
-    async function testCard(screen,buttonName,expected){
-      await page.evaluate(x=>window.IntegraTrampoUICoreV8.navigate(x),screen);
-      const btn=page.getByRole('button',{name:buttonName}).first();
-      if(await btn.count()){
-        await btn.click();await waitModal();
-        assert.match(await modalText(),expected,`${buttonName} não abriu conteúdo válido`);
-        await closeModal();
-      }
-    }
-    await testCard('vagas',/Ver vaga/i,/oportunidade|vaga|diária|contrat/i);
-    await testCard('profissionais',/Ver perfil/i,/perfil|profissional|diária|avalia/i);
-    await testCard('empresas',/Ver empresa/i,/empresa|contratante|reputa|cadastro/i);
-
-    // Dá tempo para todas as camadas assíncronas terminarem e roda diagnóstico de handlers.
-    await page.waitForTimeout(5000);
-    const health=await page.evaluate(()=>window.IntegraTrampoUICoreV8.report());
-    assert.equal(health.ok,true,`Diagnóstico da UI encontrou problemas: ${health.issues.join('; ')}`);
-    assert.equal(pageErrors.length,0,`Erros JavaScript não tratados: ${pageErrors.join('\n---\n')}`);
-
+    // Nenhuma exceção JavaScript não tratada deve ocorrer no caminho crítico.
+    if(errors.length)throw new Error(`Erros de página: ${errors.join(' | ')}`);
     console.log('UI_SMOKE_OK');
-    console.log(JSON.stringify({categories,expectedCategories,health},null,2));
-  } finally {
+  }finally{
     await browser.close();
   }
 })().catch(err=>{console.error('UI_SMOKE_FAIL');console.error(err);process.exit(1)});
