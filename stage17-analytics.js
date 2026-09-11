@@ -94,18 +94,34 @@
     }catch(e){console.warn('[Stage17 track]',e?.message||e);return false}
   }
 
+  async function copyText(value){
+    try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(value);return true}}catch{}
+    try{const ta=document.createElement('textarea');ta.value=value;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();return !!ok}catch{return false}
+  }
+
+  function copiedTrackingUrl(pending){
+    try{
+      const direct=window.IntegraTrampoStage16Share?.directUrl?.(pending?.type,pending?.id);if(!direct)return null;
+      const u=new URL(direct);u.searchParams.set('utm_source','copy');u.searchParams.set('utm_medium','share');u.searchParams.set('utm_campaign','integratrampo_stage17');return u.toString();
+    }catch{return null}
+  }
+
   function wrapShareTracking(){
     if(shareWrapped||typeof window.stage16ShareChannel!=='function')return;
     const original=window.stage16ShareChannel;
     window.stage16ShareChannel=async function(channel){
-      const pending=window.IntegraTrampoStage16Share?.pending||null;
+      const ch=String(channel||'other').toLowerCase().slice(0,32),pending=window.IntegraTrampoStage16Share?.pending||null;
       track('share_action',{
-        channel:String(channel||'other').toLowerCase().slice(0,32),
+        channel:ch,
         entity_type:pending?.type||null,
         entity_id:pending?.id||null,
         campaign:'integratrampo_stage16',
         medium:'share'
       }).catch(()=>{});
+      if(ch==='copy'&&pending){
+        const tracked=copiedTrackingUrl(pending)||pending.url;
+        const ok=await copyText(tracked);tell(ok?'Link copiado.':'Não consegui copiar automaticamente.');return ok;
+      }
       return original.apply(this,arguments);
     };
     shareWrapped=true;
@@ -186,7 +202,7 @@
     adminObserver=new MutationObserver(()=>injectAdminEntry());adminObserver.observe(screen,{childList:true,subtree:true});injectAdminEntry();
   }
 
-  window.IntegraTrampoStage17Analytics={version:17,currentVisit,track,openAdmin:window.openStage17Analytics,injectAdminEntry};
+  window.IntegraTrampoStage17Analytics={version:17,currentVisit,track,copiedTrackingUrl,openAdmin:window.openStage17Analytics,injectAdminEntry};
   injectStyles();
   wrapShareTracking();
   setTimeout(()=>{wrapShareTracking();observeAdmin();track('landing').catch(()=>{})},80);
