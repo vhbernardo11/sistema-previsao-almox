@@ -1,53 +1,37 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "routes": [
+  "headers": [
     {
-      "src": "/",
-      "headers": {
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "no-store, max-age=0"
-      },
-      "dest": "/index.html"
+      "source": "/",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0"
+        }
+      ]
     },
     {
-      "src": "/index\\.html",
-      "headers": {
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "no-store, max-age=0"
-      },
-      "dest": "/index.html"
-    },
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
     {
-      "src": "/(.*\\.js)",
-      "headers": {
-        "Content-Type": "application/javascript; charset=utf-8",
-        "Cache-Control": "no-store, max-age=0"
-      },
-      "continue": true
-    },
-    {
-      "src": "/(.*\\.css)",
-      "headers": {
-        "Content-Type": "text/css; charset=utf-8",
-        "Cache-Control": "no-store, max-age=0"
-      },
-      "continue": true
-    },
-    {
-      "src": "/manifest\\.webmanifest",
-      "headers": {
-        "Content-Type": "application/manifest+json; charset=utf-8",
-        "Cache-Control": "no-store, max-age=0"
-      },
-      "continue": true
-    },
-    {
-      "src": "/(.*\\.svg)",
-      "headers": {
-        "Content-Type": "image/svg+xml"
-      },
-      "continue": true
-    },
-    { "handle": "filesystem" }
+      "source": "/",
+      "destination": "/index.html"
+    }
   ]
 }
